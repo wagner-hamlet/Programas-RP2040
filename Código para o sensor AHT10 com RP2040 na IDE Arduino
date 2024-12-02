@@ -1,0 +1,58 @@
+/*
+ligação na placa
+Conexões do sensor AHT10 com a placa RP2040:
+VCC → 3.3V (ou VIN se o sensor tiver regulador).
+GND → GND.
+SDA → Pin GPIO definido como I2C SDA (exemplo: GPIO 20 em placas RP2040 padrão).
+SCL → Pin GPIO definido como I2C SCL (exemplo: GPIO 21 em placas RP2040 padrão).
+
+
+Configuração dos pinos I2C (opcional)
+Se estiver usando pinos I2C não padrão, configure-os no código antes do aht.begin() assim:
+
+
+Wire.setSDA(20); // Altere para o número do GPIO usado como SDA
+Wire.setSCL(21); // Altere para o número do GPIO usado como SCL
+Wire.begin();
+
+*/
+
+
+#include <Adafruit_AHT10.h>
+
+// Criação do objeto sensor
+Adafruit_AHT10 aht;
+
+void setup() {
+  Serial.begin(115200);
+  while (!Serial) delay(10); // Aguarda a inicialização do Serial para a placa RP2040
+
+  Serial.println("Inicializando o sensor AHT10...");
+
+  // Inicializa o sensor
+  if (!aht.begin()) {
+    Serial.println("Erro ao inicializar o AHT10! Verifique a conexão.");
+    while (1) delay(10); // Trava o programa se não detectar o sensor
+  }
+
+  Serial.println("Sensor AHT10 inicializado com sucesso!");
+}
+
+void loop() {
+  sensors_event_t humidity, temp;
+  
+  // Lê os dados do sensor
+  aht.getEvent(&humidity, &temp);
+
+  // Exibe os valores no Serial Monitor
+  Serial.print("Temperatura: ");
+  Serial.print(temp.temperature);
+  Serial.println(" °C");
+  
+  Serial.print("Umidade: ");
+  Serial.print(humidity.relative_humidity);
+  Serial.println(" %");
+
+  delay(2000); // Aguarda 2 segundos antes da próxima leitura
+}
+
